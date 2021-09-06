@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class UdemyCourseScrapper implements ScrappingService<CoursesInfo> {
     private static final String URL_TO_SCRAPE = "https://www.discudemy.com/all";
+    private final String PATTERN = "https://www.discudemy.com/go/";
     private final ChromeDriver driver;
 
     @Autowired
@@ -44,6 +45,8 @@ public class UdemyCourseScrapper implements ScrappingService<CoursesInfo> {
                         }
                 ).collect(Collectors.toList());
 
+        // If the course is an ad or is a malformed course, we delete it.
+        courses.removeIf(course -> !course.getUrl().startsWith(PATTERN) || course.getLanguage().equalsIgnoreCase("ads"));
         // Populate our CoursesInfo object, with the recently scrapped data
         coursesInfo = new CoursesInfo(courses);
         // Update the links with the actual Udemy courses links
@@ -57,20 +60,19 @@ public class UdemyCourseScrapper implements ScrappingService<CoursesInfo> {
     private void updateCoursesLinks(CoursesInfo courses) {
         // This method runs through each course, and filters the
         courses.getCourses()
-                .stream()
-                .filter(courseUrl -> !courseUrl.getLanguage().equalsIgnoreCase("Ads")) // Filter the "Ads" link
-                .forEach(course -> course.setUrl(course.getUrl().replaceFirst(course.getUrl().split("/")[3], "go")));
+                .forEach(course -> course
+                        .setUrl(course.getUrl().replaceFirst(course.getUrl().split("/")[3], "go")) // To avoid having to go through each page twice, I replaced the link to be able to get the links by going through them only once
+        );
+
         getActualUdemyLinks(courses);
     }
 
-    private void getActualUdemyLinks(CoursesInfo courses){
+    private void getActualUdemyLinks(CoursesInfo courses) {
         courses.getCourses()
-                .stream()
-                .filter(course -> !course.getLanguage().equalsIgnoreCase("Ads")) // Filter the "Ads" link
                 .forEach(course -> {
                     driver.navigate().to(course.getUrl());
                     Document document = Jsoup.parse(driver.getPageSource());
                     course.setUrl(document.getElementsByClass("ui segment").select("a").attr("href")); // Get the actual udemy course link
-        });
+                });
     }
 }
