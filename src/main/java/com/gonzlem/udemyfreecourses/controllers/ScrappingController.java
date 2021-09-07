@@ -5,9 +5,9 @@ import com.gonzlem.udemyfreecourses.services.interfaces.ScrappingService;
 import com.gonzlem.udemyfreecourses.utils.CoursesInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/scrapper")
@@ -22,10 +22,25 @@ public class ScrappingController {
     }
 
     @RequestMapping
-    public ResponseEntity<String> scrape() {
-        CoursesInfo courses = scrappingService.scrape();
-        courseService.saveAllCourses(courses);
+    public CoursesInfo scrape() {
+        try {
+            CoursesInfo courses = scrappingService.scrape();
+            return courses;
+        } catch (Exception exc) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Error while trying to scrape the courses.", exc);
+        }
+    }
 
-        return ResponseEntity.ok().build();
+    @RequestMapping("/persist")
+    public CoursesInfo scrapeAndPersist() {
+        try {
+            CoursesInfo courses = scrappingService.scrape();
+            courseService.saveAllCourses(courses);
+            return courses;
+        } catch (Exception exc) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Error while trying to scrape and persist the courses.", exc);
+        }
     }
 }

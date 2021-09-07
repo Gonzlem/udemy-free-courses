@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class UdemyCourseScrapper implements ScrappingService<CoursesInfo> {
     private static final String URL_TO_SCRAPE = "https://www.discudemy.com/all";
+    public static final String ADS = "ads";
     private final String PATTERN = "https://www.discudemy.com/go/";
     private final ChromeDriver driver;
 
@@ -46,7 +47,7 @@ public class UdemyCourseScrapper implements ScrappingService<CoursesInfo> {
                 ).collect(Collectors.toList());
 
         // If the course is an ad or is a malformed course, we delete it.
-        courses.removeIf(course -> !course.getUrl().startsWith(PATTERN) || course.getLanguage().equalsIgnoreCase("ads"));
+        courses.removeIf(course -> course.getLanguage().equalsIgnoreCase(ADS));
         // Populate our CoursesInfo object, with the recently scrapped data
         coursesInfo = new CoursesInfo(courses);
         // Update the links with the actual Udemy courses links
@@ -58,11 +59,12 @@ public class UdemyCourseScrapper implements ScrappingService<CoursesInfo> {
     }
 
     private void updateCoursesLinks(CoursesInfo courses) {
-        // This method runs through each course, and filters the
         courses.getCourses()
                 .forEach(course -> course
                         .setUrl(course.getUrl().replaceFirst(course.getUrl().split("/")[3], "go")) // To avoid having to go through each page twice, I replaced the link to be able to get the links by going through them only once
         );
+
+        courses.getCourses().removeIf(course -> !course.getUrl().startsWith(PATTERN));
 
         getActualUdemyLinks(courses);
     }
