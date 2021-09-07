@@ -8,5 +8,6 @@ import java.util.List;
 public interface CourseRepository extends JpaRepository<Course, Long> {
     boolean existsByTitle(String title);
     List<Course> findAllByOrderByDateAsc();
+    List<Course> findAllByOrderByDateDesc();
     List<Course> findAllByTitleContains(String title);
 }

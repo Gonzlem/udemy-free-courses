@@ -6,9 +6,6 @@ import com.gonzlem.udemyfreecourses.utils.CoursesInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-
-
 @Service
 public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
@@ -41,6 +38,11 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CoursesInfo findAllByOrderByDateAsc() {
         return new CoursesInfo(courseRepository.findAllByOrderByDateAsc());
+    }
+
+    @Override
+    public CoursesInfo findAllByOrderByDateDesc() {
+        return new CoursesInfo(courseRepository.findAllByOrderByDateDesc());
     }
 
     @Override

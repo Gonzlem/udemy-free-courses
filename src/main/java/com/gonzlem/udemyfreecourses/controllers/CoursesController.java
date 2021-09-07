@@ -20,9 +20,9 @@ public class CoursesController {
         return courseService.findAllCourses();
     }
 
-    @GetMapping("/all/date/asc")
-    public CoursesInfo findAllByOrderByDateAsc() {
-        return courseService.findAllByOrderByDateAsc();
+    @GetMapping("/all/filter")
+    public CoursesInfo findAllByOrderByDate(@RequestParam(value = "order") String order) {
+        return order.equals("asc") ? courseService.findAllByOrderByDateAsc() : courseService.findAllByOrderByDateDesc();
     }
 
     @RequestMapping("/all/filter")

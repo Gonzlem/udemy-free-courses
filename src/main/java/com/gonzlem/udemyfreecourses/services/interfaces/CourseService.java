@@ -7,5 +7,6 @@ public interface CourseService {
     void saveAllCourses(CoursesInfo courses);
     CoursesInfo findAllCourses(); // Will go and get the items from the database directly
     CoursesInfo findAllByOrderByDateAsc();
+    CoursesInfo findAllByOrderByDateDesc();
     CoursesInfo findAllByTitleContains(String title);
 }
