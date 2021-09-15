@@ -34,13 +34,8 @@ public class ScrappingController {
 
     @RequestMapping("/persist")
     public CoursesInfo scrapeAndPersist() {
-        try {
             CoursesInfo courses = scrappingService.scrape();
             courseService.saveAllCourses(courses);
             return courses;
-        } catch (Exception exc) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Error while trying to scrape and persist the courses.", exc);
-        }
     }
 }
